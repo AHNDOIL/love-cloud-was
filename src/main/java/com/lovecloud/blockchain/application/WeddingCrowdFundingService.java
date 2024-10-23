@@ -37,6 +37,8 @@ public class WeddingCrowdFundingService {
     @Value("${web3j.keyfile-password}")
     private String keyfilePassword;
 
+//    @Value("${web3j.company-wallet-file-path}")
+    private String companyWalletFilePath="./UTC--2024-09-20T11-34-38.593315130Z--d67879ec7d54539abe4860ea2688c80e0a175ec5";
     /**
      * 블록체인에 펀딩을 생성하는 메서드
      *
@@ -109,6 +111,38 @@ public class WeddingCrowdFundingService {
         TransactionReceipt receipt = fundingContract.contribute(fundingId, amount).send();
 
         // 트랜잭션 해시 반환
+        return receipt.getTransactionHash();
+    }
+
+    /**
+     * 토큰 사용 승인 후 주문을 취소하는 메서드
+     * @param fundingId      취소할 펀딩 ID
+     * @param walletFilePath 사용자의 지갑 파일 경로
+     * @param amount         환불받을 토큰 금액
+     * */
+    public String approveAndCancelOrder(BigInteger fundingId, String walletFilePath, BigInteger amount) throws Exception {
+        // 토큰 사용 승인
+        String approvalTxHash = lcTokenService.approveTokens(companyWalletFilePath, keyfilePassword, amount);
+
+        // 승인 결과 검증
+        if (approvalTxHash == null || approvalTxHash.isEmpty()) {
+            throw new IllegalStateException("토큰 사용 승인에 실패하였습니다.");
+        }
+
+        // 펀딩 취소
+        return cancelOrder(walletFilePath, fundingId);
+    }
+
+    /**
+     * 주문 취소 메서드
+     *
+     * @param walletFilePath 사용자의 지갑 파일 경로
+     * @param fundingId      취소할 펀딩 ID
+     *
+     * */
+    private String cancelOrder(String walletFilePath, BigInteger fundingId) throws Exception {
+        WeddingCrowdFunding fundingContract = loadContract(walletFilePath);
+        TransactionReceipt receipt = fundingContract.cancelOrder(fundingId).send();
         return receipt.getTransactionHash();
     }
 
