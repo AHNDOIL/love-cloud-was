@@ -1,8 +1,11 @@
 package com.lovecloud.blockchain.application;
 
 import com.lovecloud.blockchain.domain.WeddingCrowdFunding;
+import com.lovecloud.blockchain.domain.WeddingCrowdFunding.CrowdfundingCreatedEventResponse;
 import com.lovecloud.blockchain.exception.BlockchainException;
 import com.lovecloud.infra.s3.KeyfileService;
+import java.math.BigInteger;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,8 +18,6 @@ import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.tx.RawTransactionManager;
 import org.web3j.tx.TransactionManager;
 import org.web3j.tx.gas.DefaultGasProvider;
-
-import java.math.BigInteger;
 
 @Slf4j
 @Service
@@ -62,10 +63,23 @@ public class WeddingCrowdFundingService {
             TransactionReceipt receipt = fundingContract.createCrowdfunding(goal, duration).send();
             log.info("트랜잭션 전송 완료. 트랜잭션 해시: {}", receipt.getTransactionHash());
 
+            if (!receipt.isStatusOK()) {
+                throw new BlockchainException("트랜잭션이 성공적으로 완료되지 않았습니다.");
+            }
+            web3j.ethGetTransactionReceipt(receipt.getTransactionHash())
+                    .sendAsync().get();
+            log.info(receipt.getLogs().toString());
+            log.info("가스 사용량: {}", receipt.getGasUsed());
             // 트랜잭션에서 생성된 펀딩 ID 반환
-            BigInteger crowdfundingCount = fundingContract.crowdfundingCount().send();
-            log.info("생성된 펀딩 ID: {}", crowdfundingCount);
-            return crowdfundingCount;
+            log.info("펀딩 생성 이벤트 수: {}", fundingContract.crowdfundingCount().send());
+            /*return fundingContract.crowdfundingCount().send();*/
+            List<CrowdfundingCreatedEventResponse> eventResponseList = fundingContract.getCrowdfundingCreatedEvents(receipt);
+            if (eventResponseList.isEmpty()) {
+                throw new BlockchainException("펀딩 생성 이벤트를 찾을 수 없습니다.");
+            }
+            BigInteger crowdfundingId = eventResponseList.get(0).crowdfundingId;
+            log.info("생성된 펀딩 ID: {}", crowdfundingId);
+            return crowdfundingId;
         } catch (Exception e) {
             log.error("블록체인에서 펀딩 생성 중 오류 발생", e);
             throw new BlockchainException("블록체인에서 펀딩 생성 중 오류 발생", e);
@@ -104,8 +118,8 @@ public class WeddingCrowdFundingService {
     /**
      * 블록체인에 펀딩 기여를 처리하는 메서드
      *
-     * @param fundingId   기여할 블록체인 펀딩 ID
-     * @param amount      기여 금액
+     * @param fundingId      기여할 블록체인 펀딩 ID
+     * @param amount         기여 금액
      * @param keyfileContent 사용자의 지갑 파일 내용
      * @return 트랜잭션 해시
      * @throws BlockchainException 블록체인 연동 중 오류 발생 시 예외 처리
@@ -145,7 +159,8 @@ public class WeddingCrowdFundingService {
             log.info("트랜잭션 매니저 생성 완료. chainId: {}", chainId);
 
             // 스마트 컨트랙트 로드
-            return WeddingCrowdFunding.load(fundingContractAddress, web3j, transactionManager, new DefaultGasProvider());
+            return WeddingCrowdFunding.load(fundingContractAddress, web3j, transactionManager,
+                    new DefaultGasProvider());
         } catch (Exception e) {
             log.error("스마트 컨트랙트를 로드하는 중 오류 발생", e);
             throw new BlockchainException("스마트 컨트랙트를 로드하는 중 오류 발생", e);
