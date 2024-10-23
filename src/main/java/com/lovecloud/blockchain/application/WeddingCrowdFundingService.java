@@ -38,8 +38,8 @@ public class WeddingCrowdFundingService {
     @Value("${web3j.keyfile-password}")
     private String keyfilePassword;
 
-//    @Value("${web3j.company-wallet-file-path}")
-    private String companyWalletFilePath="./UTC--2024-09-20T11-34-38.593315130Z--d67879ec7d54539abe4860ea2688c80e0a175ec5";
+    @Value("${web3j.company-wallet-file-path}")
+    private String companyWalletFilePath;
     /**
      * 블록체인에 펀딩을 생성하는 메서드
      *

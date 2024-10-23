@@ -1,6 +1,8 @@
 package com.lovecloud.ordermanagement.application;
 
+import com.lovecloud.blockchain.application.WalletPathResolver;
 import com.lovecloud.blockchain.application.WeddingCrowdFundingService;
+import com.lovecloud.blockchain.exception.FundingBlockchainException;
 import com.lovecloud.fundingmanagement.domain.Funding;
 import com.lovecloud.fundingmanagement.domain.repository.FundingRepository;
 import com.lovecloud.global.util.DateUuidGenerator;
@@ -99,7 +101,23 @@ public class OrderService {
             orderDetails.getFunding().getProductOptions().increaseStockQuantity();
         });
 
-        // TODO: 블록체인 연동
+        /**
+         * TODO: 블록체인 연동
+         * fundingBlockchainId가 정의되어야 함
+         * */
+//        try {
+//            String walletFilePath = WalletPathResolver.resolveWalletPath(couple.getWallet().getKeyfile());
+//            // 블록체인 연동 - 주문 완료
+//            order.getOrderDetails().forEach(orderDetails -> {
+//                Funding funding = orderDetails.getFunding();
+//                String transactionHash = weddingCrowdFundingService.approveAndCancelOrder(walletFilePath, funding.getBlockcainId(), funding.getTargetAmount());
+//                log.info("블록체인 트랜잭션 해시: {}", transactionHash);
+//            });
+//
+//        } catch (Exception e) {
+//            throw new FundingBlockchainException("블록체인 연동 중 오류가 발생하였습니다.");
+//        }
+//
 
     }
 
