@@ -76,13 +76,11 @@ public class FundingParticipationService {
         fundingValidator.validateMatchingAmounts(guestFunding.getFundingAmount(), payment.getAmount());
 
         try {
-            String walletFilePath = WalletPathResolver.resolveWalletPath(guestFunding.getGuest().getWallet().getKeyfile());
-
             // 블록체인 연동 - 토큰 사용 승인 및 펀딩 참여
             String transactionHash = weddingCrowdFundingService.approveAndContribute(
-                    BigInteger.valueOf(funding.getId()),
+                    funding.getBlockchainFundingId(),
                     BigInteger.valueOf(payment.getAmount()),
-                    walletFilePath
+                    guestFunding.getGuest().getWallet().getKeyfile()
             );
 
             log.info("블록체인 트랜잭션 해시: {}", transactionHash);
