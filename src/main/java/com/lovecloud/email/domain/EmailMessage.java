@@ -7,7 +7,7 @@ import lombok.Getter;
 @Getter
 public class EmailMessage {
 
-    private final String toEmail;
-    private final String subject;
-    private final String message;
+    private String toEmail;
+    private String subject;
+    private String message;
 }
