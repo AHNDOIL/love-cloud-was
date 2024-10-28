@@ -61,25 +61,13 @@ public class WeddingCrowdFundingService {
 
             // 펀딩 트랜잭션 전송
             TransactionReceipt receipt = fundingContract.createCrowdfunding(goal, duration).send();
-            log.info("트랜잭션 전송 완료. 트랜잭션 해시: {}", receipt.getTransactionHash());
 
-            if (!receipt.isStatusOK()) {
-                throw new BlockchainException("트랜잭션이 성공적으로 완료되지 않았습니다.");
-            }
-            web3j.ethGetTransactionReceipt(receipt.getTransactionHash())
-                    .sendAsync().get();
-            log.info(receipt.getLogs().toString());
-            log.info("가스 사용량: {}", receipt.getGasUsed());
-            // 트랜잭션에서 생성된 펀딩 ID 반환
-            log.info("펀딩 생성 이벤트 수: {}", fundingContract.crowdfundingCount().send());
-            /*return fundingContract.crowdfundingCount().send();*/
             List<CrowdfundingCreatedEventResponse> eventResponseList = fundingContract.getCrowdfundingCreatedEvents(receipt);
             if (eventResponseList.isEmpty()) {
                 throw new BlockchainException("펀딩 생성 이벤트를 찾을 수 없습니다.");
             }
-            BigInteger crowdfundingId = eventResponseList.get(0).crowdfundingId;
-            log.info("생성된 펀딩 ID: {}", crowdfundingId);
-            return crowdfundingId;
+
+            return eventResponseList.get(0).crowdfundingId;
         } catch (Exception e) {
             log.error("블록체인에서 펀딩 생성 중 오류 발생", e);
             throw new BlockchainException("블록체인에서 펀딩 생성 중 오류 발생", e);
