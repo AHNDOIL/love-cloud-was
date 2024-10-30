@@ -12,6 +12,7 @@ import com.lovecloud.fundingmanagement.exception.MismatchedMerchantUidsException
 import com.lovecloud.payment.domain.Payment;
 import com.lovecloud.payment.domain.PaymentStatus;
 import com.lovecloud.payment.exception.InvalidPaymentStatusException;
+import com.lovecloud.usermanagement.domain.Guest;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -31,6 +32,12 @@ public class FundingValidator {
 
     public void validateGuestFundingStatus(GuestFunding guestFunding, ParticipationStatus status) {
         if (guestFunding.getParticipationStatus() != status) {
+            throw new InvalidGuestFundingStatusException();
+        }
+    }
+
+    public void validateFundingOwnership(GuestFunding guestFunding, Guest guest) {
+        if (!guestFunding.getGuest().equals(guest)) {
             throw new InvalidGuestFundingStatusException();
         }
     }
