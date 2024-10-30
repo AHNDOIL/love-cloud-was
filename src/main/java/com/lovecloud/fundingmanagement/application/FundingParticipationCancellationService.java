@@ -64,7 +64,7 @@ public class FundingParticipationCancellationService {
 
         // GuestFunding 및 Funding 상태 업데이트
         guestFunding.updateStatus(ParticipationStatus.CANCELLED);
-        funding.decresaseCurrentAmount(guestFunding.getFundingAmount());
+        funding.decreaseCurrentAmount(guestFunding.getFundingAmount());
         guestFundingRepository.save(guestFunding);
     }
 }
