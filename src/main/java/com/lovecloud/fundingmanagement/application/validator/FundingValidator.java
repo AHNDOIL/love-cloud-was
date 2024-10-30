@@ -36,7 +36,7 @@ public class FundingValidator {
         }
     }
 
-    public void validateFundingOwnership(GuestFunding guestFunding, Guest guest) {
+    public void validateGuestFundingOwnership(GuestFunding guestFunding, Guest guest) {
         if (!guestFunding.getGuest().equals(guest)) {
             throw new InvalidGuestFundingStatusException();
         }

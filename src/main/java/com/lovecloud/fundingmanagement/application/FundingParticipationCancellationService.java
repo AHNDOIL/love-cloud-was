@@ -39,7 +39,7 @@ public class FundingParticipationCancellationService {
         Funding funding = guestFunding.getFunding();
 
         // 유효성 검사
-        fundingValidator.validateFundingOwnership(guestFunding, guest);
+        fundingValidator.validateGuestFundingOwnership(guestFunding, guest);
         fundingValidator.validateGuestFundingStatus(guestFunding, ParticipationStatus.PAID);
         fundingValidator.validatePaymentStatus(payment, PaymentStatus.PAID);
         fundingValidator.validateFundingStatus(funding, FundingStatus.IN_PROGRESS);
