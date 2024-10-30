@@ -12,6 +12,8 @@ import com.lovecloud.fundingmanagement.exception.MismatchedMerchantUidsException
 import com.lovecloud.payment.domain.Payment;
 import com.lovecloud.payment.domain.PaymentStatus;
 import com.lovecloud.payment.exception.InvalidPaymentStatusException;
+import com.lovecloud.usermanagement.domain.Couple;
+import com.lovecloud.usermanagement.domain.WeddingUser;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -38,6 +40,12 @@ public class FundingValidator {
     public void validateTargetAmountNotExceeded(Funding funding, Long amount) {
         if (funding.getCurrentAmount() + amount > funding.getTargetAmount()) {
             throw new FundingTargetExceededException();
+        }
+    }
+
+    public void validateFundingOwnership(Funding funding, Couple couple) {
+        if (!funding.getCouple().getId().equals(couple.getId())) {
+            throw new InvalidFundingStatusException();
         }
     }
 
