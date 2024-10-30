@@ -103,6 +103,26 @@ public class WeddingCrowdFundingService {
         }
     }
 
+    public String cancelContribution(BigInteger fundingId, String keyfileName) {
+        try {
+            // S3에서 지갑 파일을 가져옴
+            String keyfileContent = keyfileService.downloadKeyfile(keyfileName);
+            log.info("S3에서 지갑 파일 가져옴: {}", keyfileContent);
+
+            // 펀딩 스마트 컨트랙트 로드
+            WeddingCrowdFunding fundingContract = loadContract(keyfileContent);
+            log.info("스마트 컨트랙트 로드 완료.");
+
+            // 펀딩 트랜잭션 전송
+            TransactionReceipt receipt = fundingContract.cancelContribution(fundingId).send();
+
+            return receipt.getTransactionHash();
+        } catch (Exception e) {
+            log.error("블록체인 펀딩 참여 취소 중 에러 발생", e);
+            throw new BlockchainException("블록체인 펀딩 참여 취소 중 에러 발생", e);
+        }
+    }
+
     /**
      * 블록체인에 펀딩 기여를 처리하는 메서드
      *
