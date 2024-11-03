@@ -127,29 +127,34 @@ public class WeddingCrowdFundingService {
 
     /**
      * 주문 완료 메서드
-     * @param walletFilePath 사용자의 지갑 파일 경로
+     * @param keyfileName 사용자의 지갑 파일 경로
      * @param fundingId 주문 완료할 펀딩 ID
      * @return 트랜잭션 해시
      * @throws Exception 블록체인 연동 중 오류 발생 시 예외 처리
      * */
-    public String completeOrder(String walletFilePath, BigInteger fundingId) throws Exception {
-
-        // 펀딩 스마트 계약 로드
-        WeddingCrowdFunding fundingContract = loadContract(walletFilePath);
-
-        // 펀딩 완료 및 주문 트랜잭션 전송
-        TransactionReceipt receipt = null;
+    public String completeOrder(String keyfileName, BigInteger fundingId) throws Exception {
         try {
-            receipt = fundingContract.completeOrder(fundingId).send();
+            // S3에서 지갑 파일을 가져옴
+            String keyfileContent = keyfileService.downloadKeyfile(keyfileName);
+            log.info("S3에서 지갑 파일 가져옴: {}", keyfileContent);
+
+            // 펀딩 스마트 계약 로드
+            WeddingCrowdFunding fundingContract = loadContract(keyfileContent);
+            log.info("스마트 컨트랙트 로드 완료.");
+
+            // 펀딩 완료 및 주문 트랜잭션 전송
+            TransactionReceipt receipt = fundingContract.completeOrder(fundingId).send();
+
+            return receipt.getTransactionHash();
         } catch (Exception e) {
             // 펀딩이 종료되지 않은 경우 FundingNotCompletedException 발생
             if(e.getMessage().contains("ended yet")){
                 throw new SmartContractFundingNotCompletedException();
             }else{
-                throw new RuntimeException(e);
+                log.error("블록체인 펀딩 참여 취소 중 에러 발생", e);
+                throw new BlockchainException("블록체인 펀딩 참여 취소 중 에러 발생", e);
             }
         }
-        return receipt.getTransactionHash();
     }
 
 
