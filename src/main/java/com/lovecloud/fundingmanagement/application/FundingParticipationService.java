@@ -8,6 +8,7 @@ import com.lovecloud.fundingmanagement.application.command.CompleteParticipation
 import com.lovecloud.fundingmanagement.application.command.ParticipateFundingCommand;
 import com.lovecloud.fundingmanagement.application.validator.FundingValidator;
 import com.lovecloud.fundingmanagement.domain.Funding;
+import com.lovecloud.fundingmanagement.domain.FundingStatus;
 import com.lovecloud.fundingmanagement.domain.GuestFunding;
 import com.lovecloud.fundingmanagement.domain.ParticipationStatus;
 import com.lovecloud.fundingmanagement.domain.repository.FundingRepository;
@@ -16,6 +17,7 @@ import com.lovecloud.fundingmanagement.exception.DuplicateParticipationException
 import com.lovecloud.fundingmanagement.query.response.ParticipateFundingResponse;
 import com.lovecloud.global.util.DateUuidGenerator;
 import com.lovecloud.payment.domain.Payment;
+import com.lovecloud.payment.domain.PaymentStatus;
 import com.lovecloud.payment.domain.repository.PaymentRepository;
 import com.lovecloud.usermanagement.domain.Guest;
 import lombok.RequiredArgsConstructor;
@@ -45,7 +47,7 @@ public class FundingParticipationService {
         Funding funding = fundingRepository.findByIdOrThrow(command.fundingId());
 
         // 유효성 검사
-        fundingValidator.validateFundingStatus(funding);
+        fundingValidator.validateFundingStatus(funding, FundingStatus.IN_PROGRESS);
         fundingValidator.validateTargetAmountNotExceeded(funding, command.fundingAmount());
 
         // 중복 참여 검사
@@ -68,21 +70,19 @@ public class FundingParticipationService {
         Payment payment = paymentRepository.findByIdOrThrow(command.paymentId());
 
         // 유효성 검사
-        fundingValidator.validatePaymentStatus(payment);
+        fundingValidator.validatePaymentStatus(payment, PaymentStatus.PAID);
         Funding funding = guestFunding.getFunding();
-        fundingValidator.validateFundingStatus(funding);
+        fundingValidator.validateFundingStatus(funding, FundingStatus.IN_PROGRESS);
         fundingValidator.validateTargetAmountNotExceeded(funding, payment.getAmount());
         fundingValidator.validateMatchingMerchantUids(guestFunding.getMerchantUid(), payment.getMerchantUid());
         fundingValidator.validateMatchingAmounts(guestFunding.getFundingAmount(), payment.getAmount());
 
         try {
-            String walletFilePath = WalletPathResolver.resolveWalletPath(guestFunding.getGuest().getWallet().getKeyfile());
-
             // 블록체인 연동 - 토큰 사용 승인 및 펀딩 참여
             String transactionHash = weddingCrowdFundingService.approveAndContribute(
-                    BigInteger.valueOf(funding.getId()),
+                    funding.getBlockchainFundingId(),
                     BigInteger.valueOf(payment.getAmount()),
-                    walletFilePath
+                    guestFunding.getGuest().getWallet().getKeyfile()
             );
 
             log.info("블록체인 트랜잭션 해시: {}", transactionHash);
