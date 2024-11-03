@@ -63,22 +63,17 @@ public class OrderService {
         fundings.forEach(funding ->
                 productOptionsRepository.findByIdWithLockOrThrow(funding.getProductOptions().getId()).decreaseStockQuantity());
 
-        /**
-         * TODO: 블록체인 연동
-         * fundingBlockchainId가 정의되어야 함
-         * */
-//        try {
-//            String walletFilePath = WalletPathResolver.resolveWalletPath(couple.getWallet().getKeyfile());
-//            // 블록체인 연동 - 주문 완료
-//            for (Funding funding : fundings) {
-//                String transactionHash = weddingCrowdFundingService.completeOrder(walletFilePath, funding.getBlockcainId());
-//                log.info("블록체인 트랜잭션 해시: {}", transactionHash);
-//            }
-//        } catch (Exception e) {
-//            throw new FundingBlockchainException("블록체인 연동 중 오류가 발생하였습니다.");
-//        }
-
-
+        // 블록체인 연동 - 주문 완료
+        try {
+            String walletFilePath = WalletPathResolver.resolveWalletPath(couple.getWallet().getKeyfile());
+            // 블록체인 연동 - 주문 완료
+            for (Funding funding : fundings) {
+                String transactionHash = weddingCrowdFundingService.completeOrder(couple.getWallet().getKeyfile(), funding.getBlockchainFundingId());
+                log.info("블록체인 트랜잭션 해시: {}", transactionHash);
+            }
+        } catch (Exception e) {
+            throw new FundingBlockchainException("블록체인 연동 중 오류가 발생하였습니다.");
+        }
         return order.getId();
     }
 

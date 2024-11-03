@@ -35,8 +35,8 @@ class KeyfileServiceIntegrationTest {
     @Autowired
     private S3Client s3Client;
 
-    private final String keyfileName = "test-keyfile-name";
-    private final String keyfileContent = "test-keyfile-content";
+    private final String keyfileName = "UTC--2024-10-23T08-45-09.155885382Z--01153e76c5be1b88a37d4c47e4b57f8800289743.json";
+    private final String keyfileContent = "{\"address\":\"01153e76c5be1b88a37d4c47e4b57f8800289743\",\"id\":\"b9554d9d-7427-46e5-8c4a-94ef2a871b65\",\"version\":3,\"crypto\":{\"cipher\":\"aes-128-ctr\",\"ciphertext\":\"c50e5f48ba06dcd347dcd99e489746f245311a7cb5106d399279615ce81267e6\",\"cipherparams\":{\"iv\":\"a238daaa5ab56492cd40e77a59658e12\"},\"kdf\":\"scrypt\",\"kdfparams\":{\"dklen\":32,\"n\":262144,\"p\":1,\"r\":8,\"salt\":\"c1b7ff7edc9a79ff3717602187274437283ca3d37a561c111418db96d33e56db\"},\"mac\":\"e224fc0c608883f3fed65d76ebd5174534e67c5c9723b26868c47707af6a666a\"}}";
     private final String keyfilePath = "./";
 
     @Test
