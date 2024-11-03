@@ -2,27 +2,43 @@ package com.lovecloud.fundingmanagement.application.validator;
 
 import com.lovecloud.fundingmanagement.domain.Funding;
 import com.lovecloud.fundingmanagement.domain.FundingStatus;
+import com.lovecloud.fundingmanagement.domain.GuestFunding;
+import com.lovecloud.fundingmanagement.domain.ParticipationStatus;
 import com.lovecloud.fundingmanagement.exception.FundingTargetExceededException;
 import com.lovecloud.fundingmanagement.exception.InvalidFundingStatusException;
+import com.lovecloud.fundingmanagement.exception.InvalidGuestFundingStatusException;
 import com.lovecloud.fundingmanagement.exception.MismatchedAmountsException;
 import com.lovecloud.fundingmanagement.exception.MismatchedMerchantUidsException;
 import com.lovecloud.payment.domain.Payment;
 import com.lovecloud.payment.domain.PaymentStatus;
 import com.lovecloud.payment.exception.InvalidPaymentStatusException;
+import com.lovecloud.usermanagement.domain.Guest;
 import org.springframework.stereotype.Component;
 
 @Component
 public class FundingValidator {
 
-    public void validateFundingStatus(Funding funding) {
-        if (funding.getStatus() != FundingStatus.IN_PROGRESS) {
+    public void validateFundingStatus(Funding funding, FundingStatus status) {
+        if (funding.getStatus() != status) {
             throw new InvalidFundingStatusException();
         }
     }
 
-    public void validatePaymentStatus(Payment payment) {
-        if (payment.getPaymentStatus() != PaymentStatus.PAID) {
+    public void validatePaymentStatus(Payment payment, PaymentStatus status) {
+        if (payment.getPaymentStatus() != status) {
             throw new InvalidPaymentStatusException();
+        }
+    }
+
+    public void validateGuestFundingStatus(GuestFunding guestFunding, ParticipationStatus status) {
+        if (guestFunding.getParticipationStatus() != status) {
+            throw new InvalidGuestFundingStatusException();
+        }
+    }
+
+    public void validateGuestFundingOwnership(GuestFunding guestFunding, Guest guest) {
+        if (!guestFunding.getGuest().equals(guest)) {
+            throw new InvalidGuestFundingStatusException();
         }
     }
 

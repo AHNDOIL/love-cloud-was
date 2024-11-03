@@ -73,6 +73,12 @@ public class Funding extends CommonRootEntity<Long> {
         }
     }
 
+    public void decresaseCurrentAmount(Long amount) {
+        if (amount <= this.currentAmount) {
+            this.currentAmount -= amount;
+        }
+    }
+
     public void assignBlockchainFundingId(BigInteger blockchainFundingId) {
         if (this.blockchainFundingId != null) {
             throw new IllegalStateException("블록체인 펀딩 ID는 이미 설정되었습니다.");
