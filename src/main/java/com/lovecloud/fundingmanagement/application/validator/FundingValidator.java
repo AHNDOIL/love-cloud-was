@@ -13,7 +13,7 @@ import com.lovecloud.payment.domain.Payment;
 import com.lovecloud.payment.domain.PaymentStatus;
 import com.lovecloud.payment.exception.InvalidPaymentStatusException;
 import com.lovecloud.usermanagement.domain.Couple;
-import com.lovecloud.usermanagement.domain.WeddingUser;
+import com.lovecloud.usermanagement.domain.Guest;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -37,6 +37,12 @@ public class FundingValidator {
         }
     }
 
+    public void validateGuestFundingOwnership(GuestFunding guestFunding, Guest guest) {
+        if (!guestFunding.getGuest().equals(guest)) {
+            throw new InvalidGuestFundingStatusException();
+        }
+    }
+
     public void validateTargetAmountNotExceeded(Funding funding, Long amount) {
         if (funding.getCurrentAmount() + amount > funding.getTargetAmount()) {
             throw new FundingTargetExceededException();
@@ -50,7 +56,7 @@ public class FundingValidator {
     }
 
     public void validateMatchingMerchantUids(String guestFundingMerchantUid,
-            String paymentMerchantUid) {
+                                             String paymentMerchantUid) {
         if (!guestFundingMerchantUid.equals(paymentMerchantUid)) {
             throw new MismatchedMerchantUidsException();
         }
