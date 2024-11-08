@@ -23,4 +23,14 @@ public class UserQueryController {
 
         return ResponseEntity.ok(userInfoResponse);
     }
+
+    @GetMapping("/user/invitation-code")
+    public ResponseEntity<String> getInvitationCode(
+            @AuthenticationPrincipal SecurityUser securityUser) {
+
+        final String invitationCode = userQueryService.getInvitationCode(securityUser.user());
+        return ResponseEntity.ok(invitationCode);
+    }
+
+
 }

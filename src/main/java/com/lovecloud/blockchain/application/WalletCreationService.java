@@ -5,6 +5,7 @@ import com.lovecloud.blockchain.domain.Wallet;
 import com.lovecloud.blockchain.domain.repository.WalletRepository;
 import com.lovecloud.blockchain.exception.FailCreateKeyPairException;
 import com.lovecloud.blockchain.exception.FailCreateWalletException;
+import com.lovecloud.infra.s3.KeyfileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ public class WalletCreationService {
     private final WalletRepository walletRepository;
     private final WalletVerifyService walletVerifyService;
     private final EtherTransferService etherTransferService;
+    private final KeyfileService keyfileService;
 
 
     /**
@@ -70,6 +72,8 @@ public class WalletCreationService {
         String keyfile = createWallet();
         Credentials account = walletVerifyService.verifyWallet(keyfile); //지갑의 Credentials 객체 (비밀 키, 공개 키, 주소 등의 정보를 포함)
         String transactionReceipt = etherTransferService.transferEther(account.getAddress()); //지갑 주소로 이더 전송 (테스트용, 실제로는 필요 없음
+
+        keyfileService.uploadKeyfile(keyfile, "./"); //S3에 지갑 파일 업로드
 
         return walletRepository.save(Wallet.builder()
                 .address(account.getAddress())

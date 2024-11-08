@@ -20,6 +20,7 @@ public class EmailController {
     private final EmailSendService emailSendService;
     private final EmailSetService emailSetService;
 
+    //TODO: PRE-AUTHORIZATION
     @PostMapping("/password-reset")
     public ResponseEntity<Long> sendTempPasswordEmail(@Valid @RequestBody PasswordResetRequest request) {
 
