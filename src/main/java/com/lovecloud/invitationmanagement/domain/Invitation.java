@@ -4,6 +4,8 @@ import com.lovecloud.global.domain.CommonRootEntity;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+
+import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -29,13 +31,20 @@ public class Invitation extends CommonRootEntity<Long> {
     @Column(name = "content", nullable = false, length = 300)
     private String content;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "invitation_image_id", nullable = false)
     private InvitationImage invitationImage;
 
     @Builder
     public Invitation(String place, LocalDateTime weddingDateTime, String content,
                       InvitationImage invitationImage) {
+        this.place = place;
+        this.weddingDateTime = weddingDateTime;
+        this.content = content;
+        this.invitationImage = invitationImage;
+    }
+
+    public void update(String place, LocalDateTime weddingDateTime, String content, InvitationImage invitationImage) {
         this.place = place;
         this.weddingDateTime = weddingDateTime;
         this.content = content;

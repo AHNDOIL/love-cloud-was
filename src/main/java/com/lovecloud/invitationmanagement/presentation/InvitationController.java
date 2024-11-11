@@ -3,6 +3,7 @@ package com.lovecloud.invitationmanagement.presentation;
 import com.lovecloud.global.usermanager.SecurityUser;
 import com.lovecloud.invitationmanagement.application.InvitationCreateService;
 import com.lovecloud.invitationmanagement.presentation.request.CreateInvitationRequest;
+import com.lovecloud.invitationmanagement.presentation.request.UpdateInvitationRequest;
 import com.lovecloud.usermanagement.application.CoupleService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +33,17 @@ public class InvitationController {
         final Long invitationId = invitationCreateService.addInvitation(request.toCommand());
         coupleService.updateCoupleInvitation(securityUser.user().getId(), invitationId);
 
-        return ResponseEntity.created(URI.create("/invitations/" + invitationId)).build();
+        return ResponseEntity.ok(invitationId);
+    }
+
+    @PutMapping("/{invitationId}")
+    @PreAuthorize("hasRole('ROLE_WEDDING_USER')")
+    public ResponseEntity<Long> invitationUpdate(@PathVariable Long invitationId,
+                                                 @Valid @RequestBody UpdateInvitationRequest request,
+                                                 @AuthenticationPrincipal SecurityUser securityUser)
+    {
+        final Long invitaionId = invitationCreateService.updateInvitation(request.toCommand(securityUser.user().getId(), invitationId));
+        return ResponseEntity.created(URI.create("invitations/"+ invitaionId)).build();
     }
 
 }

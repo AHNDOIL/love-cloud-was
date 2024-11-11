@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public record CreateInvitationRequest(
-    @NotBlank Long invitationImageId,
+    @NotNull Long invitationImageId,
     @NotBlank String weddingDateTime,
     @NotBlank String place,
     String content
