@@ -21,7 +21,7 @@ import java.util.Optional;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class InvitationCreateService {
+public class InvitationService {
     private final InvitationRepository invitationRepository;
     private final InvitationImageRepository invitationImageRepository;
     private final CoupleRepository coupleRepository;

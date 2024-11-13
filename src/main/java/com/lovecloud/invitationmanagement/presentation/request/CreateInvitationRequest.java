@@ -14,7 +14,7 @@ public record CreateInvitationRequest(
 
 
     public CreateInvitationCommand toCommand(Long userId) {
-        return new CreateInvitationCommand(userId, nvitationImageId, weddingDateTime, place, content);
+        return new CreateInvitationCommand(userId, invitationImageId, weddingDateTime, place, content);
     }
 }
 

@@ -1,7 +1,7 @@
 package com.lovecloud.invitationmanagement.presentation;
 
 import com.lovecloud.global.usermanager.SecurityUser;
-import com.lovecloud.invitationmanagement.application.InvitationCreateService;
+import com.lovecloud.invitationmanagement.application.InvitationService;
 import com.lovecloud.invitationmanagement.presentation.request.CreateInvitationRequest;
 import com.lovecloud.invitationmanagement.presentation.request.UpdateInvitationRequest;
 import com.lovecloud.usermanagement.application.CoupleService;
@@ -20,7 +20,7 @@ import java.net.URI;
 @RestController
 public class InvitationController {
 
-    private final InvitationCreateService invitationCreateService;
+    private final InvitationService invitationService;
     private final CoupleService coupleService;
 
     @PostMapping
@@ -30,7 +30,7 @@ public class InvitationController {
                                               @AuthenticationPrincipal SecurityUser securityUser)
     {
 
-        final Long invitationId = invitationCreateService.addInvitation(request.toCommand(securityUser.user().getId() ));
+        final Long invitationId = invitationService.addInvitation(request.toCommand(securityUser.user().getId() ));
         coupleService.updateCoupleInvitation(securityUser.user().getId(), invitationId);
 
         return ResponseEntity.ok(invitationId);
@@ -41,7 +41,7 @@ public class InvitationController {
     public ResponseEntity<Long> invitationUpdate(@Valid @RequestBody UpdateInvitationRequest request,
                                                  @AuthenticationPrincipal SecurityUser securityUser)
     {
-        final Long invitaionId = invitationCreateService.updateInvitation(request.toCommand(securityUser.user().getId()));
+        final Long invitaionId = invitationService.updateInvitation(request.toCommand(securityUser.user().getId()));
         return ResponseEntity.created(URI.create("invitations/"+ invitaionId)).build();
     }
 
@@ -49,7 +49,7 @@ public class InvitationController {
     @PreAuthorize("hasRole('ROLE_WEDDING_USER')")
     public ResponseEntity<Void> invitationDelete(@AuthenticationPrincipal SecurityUser securityUser)
     {
-        invitationCreateService.deleteInvitation(securityUser.user().getId());
+        invitationService.deleteInvitation(securityUser.user().getId());
         return ResponseEntity.noContent().build();
     }
 
