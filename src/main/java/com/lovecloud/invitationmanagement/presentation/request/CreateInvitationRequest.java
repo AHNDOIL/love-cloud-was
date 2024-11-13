@@ -13,8 +13,8 @@ public record CreateInvitationRequest(
 ) {
 
 
-    public CreateInvitationCommand toCommand() {
-        return new CreateInvitationCommand(invitationImageId, weddingDateTime, place, content);
+    public CreateInvitationCommand toCommand(Long userId) {
+        return new CreateInvitationCommand(userId, nvitationImageId, weddingDateTime, place, content);
     }
 }
 

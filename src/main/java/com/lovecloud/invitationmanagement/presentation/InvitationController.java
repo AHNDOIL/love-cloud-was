@@ -30,7 +30,7 @@ public class InvitationController {
                                               @AuthenticationPrincipal SecurityUser securityUser)
     {
 
-        final Long invitationId = invitationCreateService.addInvitation(request.toCommand());
+        final Long invitationId = invitationCreateService.addInvitation(request.toCommand(securityUser.user().getId() ));
         coupleService.updateCoupleInvitation(securityUser.user().getId(), invitationId);
 
         return ResponseEntity.ok(invitationId);

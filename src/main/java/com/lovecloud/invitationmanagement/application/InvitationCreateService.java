@@ -6,6 +6,7 @@ import com.lovecloud.invitationmanagement.domain.Invitation;
 import com.lovecloud.invitationmanagement.domain.InvitationImage;
 import com.lovecloud.invitationmanagement.domain.repository.InvitationImageRepository;
 import com.lovecloud.invitationmanagement.domain.repository.InvitationRepository;
+import com.lovecloud.invitationmanagement.exeption.AlreadyExistInvitationException;
 import com.lovecloud.invitationmanagement.exeption.NotFoundInvitationException;
 import com.lovecloud.usermanagement.domain.Couple;
 import com.lovecloud.usermanagement.domain.repository.CoupleRepository;
@@ -26,7 +27,9 @@ public class InvitationCreateService {
     private final CoupleRepository coupleRepository;
 
     public Long addInvitation(final CreateInvitationCommand command) {
-
+        //이미 청첩장이 존재하는지 검증
+        Couple couple = coupleRepository.findByMemberIdOrThrow(command.userId());
+        validateInvitationUniqueness(couple);
         InvitationImage invitationImage = invitationImageRepository.findByIdOrThrow(command.invitationImageId());
         Invitation invitation = command.toInvitation(invitationImage);
 
@@ -55,5 +58,11 @@ public class InvitationCreateService {
     private Invitation getInvitationByCoupleOrThrow(Couple couple){
         return Optional.ofNullable(couple.getInvitation())
                 .orElseThrow(NotFoundInvitationException::new);
+    }
+
+    private void validateInvitationUniqueness(Couple couple) {
+        if(couple.getInvitation() != null) {
+            throw new AlreadyExistInvitationException();
+        }
     }
 }

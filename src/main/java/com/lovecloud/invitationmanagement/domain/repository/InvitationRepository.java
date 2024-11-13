@@ -8,4 +8,5 @@ public interface InvitationRepository extends JpaRepository<Invitation, Long> {
     default Invitation findByIdOrThrow(Long invitationId){
         return findById(invitationId).orElseThrow(NotFoundInvitationException::new);
     }
+
 }
