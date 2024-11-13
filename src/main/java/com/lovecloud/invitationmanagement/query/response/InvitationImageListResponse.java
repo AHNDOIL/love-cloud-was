@@ -9,7 +9,7 @@ public record InvitationImageListResponse(
 ) {
     public static InvitationImageListResponse from(List<InvitationImage> images) {
         List<InvitationImageDetailResponse> invitationImages = images.stream()
-                .map(image -> new InvitationImageDetailResponse(image.getId(), image.getImageName()))
+                .map(InvitationImageDetailResponse::from)
                 .toList();
         return new InvitationImageListResponse(invitationImages);
     }
