@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotNull;
 
 public record UpdateInvitationCommand(
         @NotNull Long userId,
-        @NotNull Long invitationId,
         @NotNull Long invitationImageId,
         @NotBlank String weddingDateTime,
         @NotBlank String place,

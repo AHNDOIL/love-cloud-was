@@ -6,11 +6,16 @@ import com.lovecloud.invitationmanagement.domain.Invitation;
 import com.lovecloud.invitationmanagement.domain.InvitationImage;
 import com.lovecloud.invitationmanagement.domain.repository.InvitationImageRepository;
 import com.lovecloud.invitationmanagement.domain.repository.InvitationRepository;
+import com.lovecloud.invitationmanagement.exeption.NotFoundInvitationException;
+import com.lovecloud.usermanagement.domain.Couple;
+import com.lovecloud.usermanagement.domain.repository.CoupleRepository;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -18,6 +23,7 @@ import java.time.LocalDateTime;
 public class InvitationCreateService {
     private final InvitationRepository invitationRepository;
     private final InvitationImageRepository invitationImageRepository;
+    private final CoupleRepository coupleRepository;
 
     public Long addInvitation(final CreateInvitationCommand command) {
 
@@ -31,10 +37,23 @@ public class InvitationCreateService {
 
     public Long updateInvitation(UpdateInvitationCommand command) {
         InvitationImage invitationImage = invitationImageRepository.findByIdOrThrow(command.invitationImageId());
-        Invitation invitation = invitationRepository.findByIdOrThrow(command.invitationId());
+        Couple couple = coupleRepository.findByMemberIdOrThrow(command.userId());
+        Invitation invitation = getInvitationByCoupleOrThrow(couple);
 
         invitation.update(command.place(), LocalDateTime.parse(command.weddingDateTime()), command.content(), invitationImage);
 
         return invitation.getId();
+    }
+
+    public void deleteInvitation(Long userId) {
+        Couple couple = coupleRepository.findByMemberIdOrThrow(userId);
+        Invitation invitation = getInvitationByCoupleOrThrow(couple);
+        couple.deleteInvitation();
+        invitationRepository.delete(invitation);
+    }
+
+    private Invitation getInvitationByCoupleOrThrow(Couple couple){
+        return Optional.ofNullable(couple.getInvitation())
+                .orElseThrow(NotFoundInvitationException::new);
     }
 }

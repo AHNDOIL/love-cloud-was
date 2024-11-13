@@ -36,14 +36,21 @@ public class InvitationController {
         return ResponseEntity.ok(invitationId);
     }
 
-    @PutMapping("/{invitationId}")
+    @PutMapping
     @PreAuthorize("hasRole('ROLE_WEDDING_USER')")
-    public ResponseEntity<Long> invitationUpdate(@PathVariable Long invitationId,
-                                                 @Valid @RequestBody UpdateInvitationRequest request,
+    public ResponseEntity<Long> invitationUpdate(@Valid @RequestBody UpdateInvitationRequest request,
                                                  @AuthenticationPrincipal SecurityUser securityUser)
     {
-        final Long invitaionId = invitationCreateService.updateInvitation(request.toCommand(securityUser.user().getId(), invitationId));
+        final Long invitaionId = invitationCreateService.updateInvitation(request.toCommand(securityUser.user().getId()));
         return ResponseEntity.created(URI.create("invitations/"+ invitaionId)).build();
+    }
+
+    @DeleteMapping()
+    @PreAuthorize("hasRole('ROLE_WEDDING_USER')")
+    public ResponseEntity<Void> invitationDelete(@AuthenticationPrincipal SecurityUser securityUser)
+    {
+        invitationCreateService.deleteInvitation(securityUser.user().getId());
+        return ResponseEntity.noContent().build();
     }
 
 }

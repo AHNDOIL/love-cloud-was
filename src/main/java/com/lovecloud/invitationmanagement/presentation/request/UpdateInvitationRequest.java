@@ -10,7 +10,7 @@ public record UpdateInvitationRequest(
         @NotBlank String place,
         String content
 ) {
-    public UpdateInvitationCommand toCommand(Long id, Long invitationId) {
-        return new UpdateInvitationCommand(id, invitationId, this.invitationImageId, this.weddingDateTime, this.place, this.content);
+    public UpdateInvitationCommand toCommand(Long userId) {
+        return new UpdateInvitationCommand(userId, this.invitationImageId, this.weddingDateTime, this.place, this.content);
     }
 }
