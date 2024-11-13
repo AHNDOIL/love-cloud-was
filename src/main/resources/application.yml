@@ -62,4 +62,4 @@ web3j:
   keyfile-password: ${WEB3J_KEYFILE_PASSWORD}
   admin-keyfile-path: ${WEB3J_ADMIN_KEYFILE_PATH}
   admin-wallet-password: ${WEB3J_ADMIN_WALLET_PASSWORD}
-
+  company-wallet-file-path: ${WEB3J_COMPANY_WALLET_FILE_PATH}

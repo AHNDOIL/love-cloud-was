@@ -1,6 +1,8 @@
 package com.lovecloud.blockchain.application;
 
 import com.lovecloud.blockchain.domain.WeddingCrowdFunding;
+import com.lovecloud.blockchain.exception.SmartContractFundingNotCompletedException;
+import com.lovecloud.fundingmanagement.domain.Funding;
 import com.lovecloud.blockchain.domain.WeddingCrowdFunding.CrowdfundingCreatedEventResponse;
 import com.lovecloud.blockchain.exception.BlockchainException;
 import com.lovecloud.infra.s3.KeyfileService;
@@ -38,6 +40,8 @@ public class WeddingCrowdFundingService {
     @Value("${web3j.keyfile-password}")
     private String keyfilePassword;
 
+    @Value("${web3j.company-wallet-file-name}")
+    private String companyWalletFileName;
     /**
      * 블록체인에 펀딩을 생성하는 메서드
      *
@@ -145,6 +149,40 @@ public class WeddingCrowdFundingService {
     }
 
     /**
+     * 주문 완료 메서드
+     * @param keyfileName 사용자의 지갑 파일 경로
+     * @param fundingId 주문 완료할 펀딩 ID
+     * @return 트랜잭션 해시
+     * @throws Exception 블록체인 연동 중 오류 발생 시 예외 처리
+     * */
+    public String completeOrder(String keyfileName, BigInteger fundingId) throws Exception {
+        try {
+            // S3에서 지갑 파일을 가져옴
+            String keyfileContent = keyfileService.downloadKeyfile(keyfileName);
+            log.info("S3에서 지갑 파일 가져옴: {}", keyfileContent);
+
+            // 펀딩 스마트 계약 로드
+            WeddingCrowdFunding fundingContract = loadContract(keyfileContent);
+            log.info("스마트 컨트랙트 로드 완료.");
+
+            // 펀딩 완료 및 주문 트랜잭션 전송
+            TransactionReceipt receipt = fundingContract.completeOrder(fundingId).send();
+
+            return receipt.getTransactionHash();
+        } catch (Exception e) {
+            // 펀딩이 종료되지 않은 경우 FundingNotCompletedException 발생
+            if(e.getMessage().contains("ended yet")){
+                throw new SmartContractFundingNotCompletedException();
+            }else{
+                log.error("블록체인 펀딩 참여 취소 중 에러 발생", e);
+                throw new BlockchainException("블록체인 펀딩 참여 취소 중 에러 발생", e);
+            }
+        }
+    }
+
+
+    /**
+     * 펀딩 기여 메서드
      * 블록체인에 펀딩 기여를 처리하는 메서드
      *
      * @param fundingId      기여할 블록체인 펀딩 ID
@@ -166,6 +204,38 @@ public class WeddingCrowdFundingService {
         } catch (Exception e) {
             throw new BlockchainException("블록체인 펀딩 기여 트랜잭션 전송 중 오류 발생", e);
         }
+    }
+
+    /**
+     * 토큰 사용 승인 후 주문을 취소하는 메서드
+     * @param fundingId      취소할 펀딩 ID
+     * @param keyfileName    사용자의 지갑 파일 이름
+     * @param amount         환불받을 토큰 금액
+     * */
+    public String approveAndCancelOrder(BigInteger fundingId, String keyfileName, BigInteger amount) throws Exception {
+        // 토큰 사용 승인
+        String approvalTxHash = lcTokenService.approveTokens(companyWalletFileName, amount);
+
+        // 승인 결과 검증
+        if (approvalTxHash == null || approvalTxHash.isEmpty()) {
+            throw new IllegalStateException("토큰 사용 승인에 실패하였습니다.");
+        }
+
+        // 펀딩 취소
+        return cancelOrder(keyfileName, fundingId);
+    }
+
+    /**
+     * 주문 취소 메서드
+     *
+     * @param keyfileName 사용자의 지갑 파일 경로
+     * @param fundingId      취소할 펀딩 ID
+     *
+     * */
+    private String cancelOrder(String keyfileName, BigInteger fundingId) throws Exception {
+        WeddingCrowdFunding fundingContract = loadContract(keyfileName);
+        TransactionReceipt receipt = fundingContract.cancelOrder(fundingId).send();
+        return receipt.getTransactionHash();
     }
 
     /**
