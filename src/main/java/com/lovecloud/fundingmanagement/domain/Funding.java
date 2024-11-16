@@ -1,6 +1,5 @@
 package com.lovecloud.fundingmanagement.domain;
 
-import com.lovecloud.blockchain.domain.Wallet;
 import com.lovecloud.global.domain.CommonRootEntity;
 import com.lovecloud.productmanagement.domain.ProductOptions;
 import com.lovecloud.usermanagement.domain.Couple;
@@ -65,6 +64,12 @@ public class Funding extends CommonRootEntity<Long> {
         this.couple = couple;
     }
 
+    public void cancel() {
+        if (this.status == FundingStatus.IN_PROGRESS) {
+            this.status = FundingStatus.CANCELED;
+        }
+    }
+
     public void increaseCurrentAmount(Long amount) {
         this.currentAmount += amount;
         if (this.currentAmount >= this.targetAmount && this.status == FundingStatus.IN_PROGRESS) {
@@ -73,7 +78,7 @@ public class Funding extends CommonRootEntity<Long> {
         }
     }
 
-    public void decresaseCurrentAmount(Long amount) {
+    public void decreaseCurrentAmount(Long amount) {
         if (amount <= this.currentAmount) {
             this.currentAmount -= amount;
         }

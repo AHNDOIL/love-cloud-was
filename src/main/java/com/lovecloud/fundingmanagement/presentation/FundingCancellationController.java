@@ -1,6 +1,6 @@
 package com.lovecloud.fundingmanagement.presentation;
 
-import com.lovecloud.fundingmanagement.application.FundingParticipationCancellationService;
+import com.lovecloud.fundingmanagement.application.FundingCancellationService;
 import com.lovecloud.global.usermanager.SecurityUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -10,20 +10,20 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController
 @RequiredArgsConstructor
-public class FundingParticipationCancellationController {
+@RestController
+public class FundingCancellationController {
 
-    private final FundingParticipationCancellationService fundingParticipationCancellationService;
+    private final FundingCancellationService fundingCancellationService;
 
-    @PreAuthorize("hasRole('ROLE_GUEST')")
-    @PatchMapping("/participations/{guestFundingId}/cancel")
-    public ResponseEntity<Void> cancelParticipation(
+    @PreAuthorize("hasRole('ROLE_WEDDING_USER')")
+    @PatchMapping("/fundings/{fundingId}/cancel")
+    public ResponseEntity<Void> cancelFunding(
             @AuthenticationPrincipal SecurityUser securityUser,
-            @PathVariable Long guestFundingId
+            @PathVariable Long fundingId
     ) {
         final Long userId = securityUser.user().getId();
-        fundingParticipationCancellationService.cancelParticipation(guestFundingId, userId);
+        fundingCancellationService.cancelFunding(fundingId, userId);
         return ResponseEntity.ok().build();
     }
 }

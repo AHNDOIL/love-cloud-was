@@ -127,6 +127,27 @@ public class WeddingCrowdFundingService {
         }
     }
 
+    public String cancelCrowdFunding(BigInteger fundingId, String keyfileName) {
+        try {
+            // S3에서 지갑 파일을 가져옴
+            String keyfileContent = keyfileService.downloadKeyfile(keyfileName);
+            log.info("S3에서 지갑 파일 가져옴: {}", keyfileContent);
+
+            // 펀딩 스마트 컨트랙트 로드
+            WeddingCrowdFunding fundingContract = loadContract(keyfileContent);
+            log.info("스마트 컨트랙트 로드 완료.");
+
+            // 펀딩 트랜잭션 전송
+            TransactionReceipt receipt = fundingContract.cancelCrowdfunding(fundingId).send();
+            log.info("펀딩 취소 트랜잭션 해시: {}", receipt.getTransactionHash());
+
+            return receipt.getTransactionHash();
+        } catch (Exception e) {
+            log.error("블록체인 펀딩 참여 취소 중 에러 발생", e);
+            throw new BlockchainException("블록체인 펀딩 참여 취소 중 에러 발생", e);
+        }
+    }
+
     /**
      * 주문 완료 메서드
      * @param keyfileName 사용자의 지갑 파일 경로
