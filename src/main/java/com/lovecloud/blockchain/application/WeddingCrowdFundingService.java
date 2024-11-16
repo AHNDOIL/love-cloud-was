@@ -2,7 +2,6 @@ package com.lovecloud.blockchain.application;
 
 import com.lovecloud.blockchain.domain.WeddingCrowdFunding;
 import com.lovecloud.blockchain.exception.SmartContractFundingNotCompletedException;
-import com.lovecloud.fundingmanagement.domain.Funding;
 import com.lovecloud.blockchain.domain.WeddingCrowdFunding.CrowdfundingCreatedEventResponse;
 import com.lovecloud.blockchain.exception.BlockchainException;
 import com.lovecloud.infra.s3.KeyfileService;
@@ -40,8 +39,8 @@ public class WeddingCrowdFundingService {
     @Value("${web3j.keyfile-password}")
     private String keyfilePassword;
 
-    @Value("${web3j.company-wallet-file-name}")
-    private String companyWalletFileName;
+    @Value("${web3j.company-wallet-file-path}")
+    private String companyWalletFilePath;
     /**
      * 블록체인에 펀딩을 생성하는 메서드
      *
@@ -157,6 +156,7 @@ public class WeddingCrowdFundingService {
      * */
     public String completeOrder(String keyfileName, BigInteger fundingId) throws Exception {
         try {
+            log.info("블록체인 주문 완료 시작. 펀딩 ID: {}, 지갑 파일: {}", fundingId, keyfileName);
             // S3에서 지갑 파일을 가져옴
             String keyfileContent = keyfileService.downloadKeyfile(keyfileName);
             log.info("S3에서 지갑 파일 가져옴: {}", keyfileContent);
@@ -212,28 +212,40 @@ public class WeddingCrowdFundingService {
      * @param keyfileName    사용자의 지갑 파일 이름
      * @param amount         환불받을 토큰 금액
      * */
-    public String approveAndCancelOrder(BigInteger fundingId, String keyfileName, BigInteger amount) throws Exception {
-        // 토큰 사용 승인
-        String approvalTxHash = lcTokenService.approveTokens(companyWalletFileName, amount);
+    public String approveAndCancelOrder(BigInteger fundingId, String keyfileName, BigInteger amount){
+        try{
+            // S3에서 지갑 파일을 가져옴
+            String keyfileContent = keyfileService.downloadKeyfile(keyfileName);
+            log.info("S3에서 지갑 파일 가져옴: {}", keyfileContent);
 
-        // 승인 결과 검증
-        if (approvalTxHash == null || approvalTxHash.isEmpty()) {
-            throw new IllegalStateException("토큰 사용 승인에 실패하였습니다.");
+            // s3에서 회사 지갑 파일을 가져옴
+            String companyWalletContent = keyfileService.downloadKeyfile(companyWalletFilePath);
+            log.info("S3에서 지갑 파일 가져옴: {}", companyWalletContent);
+
+            // 토큰 사용 승인
+            String approvalTxHash = lcTokenService.approveTokens(companyWalletContent, amount);
+
+            // 승인 결과 검증
+            if (approvalTxHash == null || approvalTxHash.isEmpty()) {
+                throw new IllegalStateException("토큰 사용 승인에 실패하였습니다.");
+            }
+
+            // 펀딩 취소
+            return cancelOrder(fundingId, keyfileContent);
+        } catch (Exception e) {
+            throw new BlockchainException("블록체인 주문 취소 중 오류 발생", e);
         }
-
-        // 펀딩 취소
-        return cancelOrder(keyfileName, fundingId);
     }
 
     /**
      * 주문 취소 메서드
      *
-     * @param keyfileName 사용자의 지갑 파일 경로
      * @param fundingId      취소할 펀딩 ID
+     * @param keyfileContent 사용자의 지갑 파일 내용
      *
      * */
-    private String cancelOrder(String keyfileName, BigInteger fundingId) throws Exception {
-        WeddingCrowdFunding fundingContract = loadContract(keyfileName);
+    private String cancelOrder(BigInteger fundingId, String keyfileContent) throws Exception {
+        WeddingCrowdFunding fundingContract = loadContract(keyfileContent);
         TransactionReceipt receipt = fundingContract.cancelOrder(fundingId).send();
         return receipt.getTransactionHash();
     }
