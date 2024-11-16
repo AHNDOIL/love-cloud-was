@@ -2,6 +2,7 @@ package com.lovecloud.usermanagement.application;
 
 import com.lovecloud.invitationmanagement.domain.Invitation;
 import com.lovecloud.invitationmanagement.domain.repository.InvitationRepository;
+import com.lovecloud.usermanagement.domain.Couple;
 import com.lovecloud.usermanagement.domain.repository.CoupleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,4 +18,5 @@ public class CoupleService {
         Invitation invitation = invitationRepository.findByIdOrThrow(invitationId);
         coupleRepository.findByMemberIdOrThrow(memberId).setInvitation(invitation);
     }
+
 }

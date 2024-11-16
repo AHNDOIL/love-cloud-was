@@ -35,8 +35,8 @@ class KeyfileServiceIntegrationTest {
     @Autowired
     private S3Client s3Client;
 
-    private final String keyfileName = "UTC--2024-10-23T08-45-09.155885382Z--01153e76c5be1b88a37d4c47e4b57f8800289743.json";
-    private final String keyfileContent = "{\"address\":\"01153e76c5be1b88a37d4c47e4b57f8800289743\",\"id\":\"b9554d9d-7427-46e5-8c4a-94ef2a871b65\",\"version\":3,\"crypto\":{\"cipher\":\"aes-128-ctr\",\"ciphertext\":\"c50e5f48ba06dcd347dcd99e489746f245311a7cb5106d399279615ce81267e6\",\"cipherparams\":{\"iv\":\"a238daaa5ab56492cd40e77a59658e12\"},\"kdf\":\"scrypt\",\"kdfparams\":{\"dklen\":32,\"n\":262144,\"p\":1,\"r\":8,\"salt\":\"c1b7ff7edc9a79ff3717602187274437283ca3d37a561c111418db96d33e56db\"},\"mac\":\"e224fc0c608883f3fed65d76ebd5174534e67c5c9723b26868c47707af6a666a\"}}";
+    private final String keyfileName = "UTC--2024-11-05T15-59-09.482160000Z--6365070784c57e0fd517c3aa59df954e2c16c73e.json";
+    private final String keyfileContent = "{\"address\":\"6365070784c57e0fd517c3aa59df954e2c16c73e\",\"id\":\"157022ab-f7bf-4e80-bd15-a4dd8982ff2b\",\"version\":3,\"crypto\":{\"cipher\":\"aes-128-ctr\",\"ciphertext\":\"3a6f24260c58cb632e6c33da4b49f019dbd36b86413e0ec9037210443425d8fb\",\"cipherparams\":{\"iv\":\"53a6ff20941cd44224819f9bee9b3567\"},\"kdf\":\"scrypt\",\"kdfparams\":{\"dklen\":32,\"n\":262144,\"p\":1,\"r\":8,\"salt\":\"d5ae7cf39343db9179cd73adbf423adf7c191b6daec285b69ac58b93e61d775a\"},\"mac\":\"1ebeca6eddda2b44661d52d96ac9107de97c08493ce82dc8a6dd226eb080262c\"}}";
     private final String keyfilePath = "./";
 
     @Test

@@ -24,9 +24,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 @Transactional
-class InvitationCreateServiceTest {
+class InvitationServiceTest {
     @Autowired
-    private InvitationCreateService invitationCreateService;
+    private InvitationService invitationService;
 
     @Autowired
     private CoupleService coupleService;
@@ -126,7 +126,7 @@ class InvitationCreateServiceTest {
                     .build();
 
             // when
-            Long invitationId = invitationCreateService.addInvitation(command);
+            Long invitationId = invitationService.addInvitation(command);
             coupleService.updateCoupleInvitation(groom.getId(),invitationId);
 
             // then
@@ -150,7 +150,7 @@ class InvitationCreateServiceTest {
                     .build();
 
             //when
-            Long invitationId = invitationCreateService.addInvitation(command);
+            Long invitationId = invitationService.addInvitation(command);
 
             // when & then
             assertThatThrownBy(() -> coupleService.updateCoupleInvitation(solo_groom.getId(), invitationId))
@@ -168,7 +168,7 @@ class InvitationCreateServiceTest {
                     .build();
 
             // when & then
-            assertThatThrownBy(() -> invitationCreateService.addInvitation(command))
+            assertThatThrownBy(() -> invitationService.addInvitation(command))
                     .isInstanceOf(NotFoundInvitationImageException.class);
         }
     }

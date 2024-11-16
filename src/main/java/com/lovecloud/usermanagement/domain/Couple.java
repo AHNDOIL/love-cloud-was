@@ -71,4 +71,8 @@ public class Couple extends CommonRootEntity<Long> {
         }
         this.wallet = wallet;
     }
+
+    public void deleteInvitation() {
+        this.invitation = null;
+    }
 }

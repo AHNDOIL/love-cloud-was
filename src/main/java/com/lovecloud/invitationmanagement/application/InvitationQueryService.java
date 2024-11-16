@@ -2,6 +2,7 @@ package com.lovecloud.invitationmanagement.application;
 
 import com.lovecloud.invitationmanagement.domain.Invitation;
 import com.lovecloud.invitationmanagement.domain.repository.InvitationRepository;
+import com.lovecloud.invitationmanagement.exeption.NotFoundInvitationException;
 import com.lovecloud.invitationmanagement.query.response.InvitationDetailResponse;
 import com.lovecloud.usermanagement.domain.Couple;
 import com.lovecloud.usermanagement.domain.repository.CoupleRepository;
@@ -21,5 +22,14 @@ public class InvitationQueryService {
         Invitation invitation = invitationRepository.findByIdOrThrow(invitationId);
         Couple couple = coupleRepository.findByInvitationIdOrThrow(invitationId);
         return InvitationDetailResponse.from(invitation, couple);
+    }
+
+    public InvitationDetailResponse findByUserId(Long id) {
+        Couple couple = coupleRepository.findByMemberIdOrThrow(id);
+        if(couple.getInvitation() == null) {
+            throw new NotFoundInvitationException();
+        }
+        return InvitationDetailResponse.from(couple.getInvitation(), couple);
+
     }
 }
