@@ -5,6 +5,8 @@ import com.lovecloud.fundingmanagement.query.response.FundingDetailResponse;
 import com.lovecloud.fundingmanagement.query.response.FundingListResponse;
 import com.lovecloud.fundingmanagement.query.response.GuestFundingListResponse;
 import com.lovecloud.fundingmanagement.query.response.OrderableFundingResponse;
+import com.lovecloud.fundingmanagement.query.response.ParticipatedFundingDetailResponse;
+import com.lovecloud.fundingmanagement.query.response.ParticipatedFundingListResponse;
 import com.lovecloud.global.usermanager.SecurityUser;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -52,7 +54,29 @@ public class FundingQueryController {
             @AuthenticationPrincipal SecurityUser securityUser
     ) {
         final Long userId = securityUser.user().getId();
-        final List<OrderableFundingResponse> orderableFundings = fundingQueryService.findOrderableFundingsByUserId(userId);
+        final List<OrderableFundingResponse> orderableFundings = fundingQueryService.findOrderableFundingsByUserId(
+                userId);
         return ResponseEntity.ok(orderableFundings);
+    }
+
+    @PreAuthorize("hasRole('ROLE_GUEST')")
+    @GetMapping("/participations")
+    public ResponseEntity<List<ParticipatedFundingListResponse>> listParticipatedFundings(
+            @AuthenticationPrincipal SecurityUser securityUser
+    ) {
+        final Long guestId = securityUser.user().getId();
+        final List<ParticipatedFundingListResponse> participations = fundingQueryService.findParticipations(guestId);
+        return ResponseEntity.ok(participations);
+    }
+
+    @PreAuthorize("hasRole('ROLE_GUEST')")
+    @GetMapping("/participations/{participationId}")
+    public ResponseEntity<ParticipatedFundingDetailResponse> detailParticipatedFunding(
+            @PathVariable Long participationId,
+            @AuthenticationPrincipal SecurityUser securityUser
+    ) {
+        final Long guestId = securityUser.user().getId();
+        final ParticipatedFundingDetailResponse participation = fundingQueryService.findParticipation(guestId, participationId);
+        return ResponseEntity.ok(participation);
     }
 }

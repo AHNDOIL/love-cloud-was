@@ -41,4 +41,6 @@ public interface GuestFundingRepository extends JpaRepository<GuestFunding, Long
     boolean existsByGuestAndFundingWithStatuses(@Param("guest") Guest guest,
                                                 @Param("funding") Funding funding,
                                                 @Param("statuses") List<ParticipationStatus> statuses);
+
+    List<GuestFunding> findByGuestIdOrderByCreatedDateDesc(Long guestId);
 }
