@@ -1,5 +1,6 @@
 package com.lovecloud.usermanagement.domain;
 
+import com.lovecloud.auth.domain.Password;
 import com.lovecloud.global.domain.CommonRootEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,7 +13,6 @@ import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -43,4 +43,6 @@ public abstract class User extends CommonRootEntity<Long> {
         this.name = name;
         this.userRole = userRole;
     }
+
+    public abstract void updatePassword(Password newPassword);
 }

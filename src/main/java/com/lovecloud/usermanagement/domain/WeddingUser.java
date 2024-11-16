@@ -65,4 +65,9 @@ public class WeddingUser extends User{
     public void signIn(String rawPassword, CustomPasswordEncoder passwordEncoder){
         this.password.validatePassword(rawPassword, passwordEncoder);
     }
+
+    @Override
+    public void updatePassword(Password encodedPassword) {
+        this.password = encodedPassword;
+    }
 }

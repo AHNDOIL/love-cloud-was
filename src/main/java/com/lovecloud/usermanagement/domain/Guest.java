@@ -53,4 +53,9 @@ public class Guest extends User {
         }
         this.wallet = wallet;
     }
+
+    @Override
+    public void updatePassword(Password encodedPassword) {
+        this.password = encodedPassword;
+    }
 }
